@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"one-api/common"
 	"one-api/setting"
 	"one-api/setting/config"
@@ -281,17 +282,26 @@ func updateOptionMap(key string, value string) (err error) {
 	switch key {
 	case "EmailDomainWhitelist":
 		common.EmailDomainWhitelist = strings.Split(value, ",")
+		common.SysLog(fmt.Sprintf("更新邮箱域名白名单: %v", common.EmailDomainWhitelist))
 	case "SMTPServer":
 		common.SMTPServer = value
+		common.SysLog(fmt.Sprintf("更新SMTP服务器: %s", value))
 	case "SMTPPort":
 		intValue, _ := strconv.Atoi(value)
 		common.SMTPPort = intValue
+		common.SysLog(fmt.Sprintf("更新SMTP端口: %d", intValue))
 	case "SMTPAccount":
 		common.SMTPAccount = value
+		common.SysLog(fmt.Sprintf("更新SMTP账户: %s", value))
 	case "SMTPFrom":
 		common.SMTPFrom = value
+		common.SysLog(fmt.Sprintf("更新SMTP发件人: %s", value))
 	case "SMTPToken":
 		common.SMTPToken = value
+		common.SysLog("更新SMTP访问凭证")
+	case "SMTPSSLEnabled":
+		common.SMTPSSLEnabled = boolValue
+		common.SysLog(fmt.Sprintf("更新SMTP SSL启用状态: %v", boolValue))
 	case "ServerAddress":
 		setting.ServerAddress = value
 	case "WorkerUrl":
