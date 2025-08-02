@@ -56,11 +56,31 @@ func NotifyUser(userId int, userEmail string, userSetting dto.UserSetting, data 
 }
 
 func sendEmailNotify(userEmail string, data dto.Notify) error {
+	common.SysLog(fmt.Sprintf("开始发送用户通知邮件 - 收件人: %s, 标题: %s", userEmail, data.Title))
+
 	// make email content
 	content := data.Content
+	common.SysLog(fmt.Sprintf("原始邮件内容: %s", content))
+
 	// 处理占位符
-	for _, value := range data.Values {
-		content = strings.Replace(content, dto.ContentValueParam, fmt.Sprintf("%v", value), 1)
+	if len(data.Values) > 0 {
+		common.SysLog(fmt.Sprintf("开始处理占位符，占位符数量: %d", len(data.Values)))
+		for i, value := range data.Values {
+			common.SysLog(fmt.Sprintf("处理占位符 %d: %s -> %v", i+1, dto.ContentValueParam, value))
+			content = strings.Replace(content, dto.ContentValueParam, fmt.Sprintf("%v", value), 1)
+		}
+		common.SysLog(fmt.Sprintf("占位符处理完成，最终内容: %s", content))
+	} else {
+		common.SysLog("没有占位符需要处理")
 	}
-	return common.SendEmail(data.Title, userEmail, content)
+
+	common.SysLog(fmt.Sprintf("准备调用SendEmail - 标题: %s, 收件人: %s", data.Title, userEmail))
+	err := common.SendEmail(data.Title, userEmail, content)
+	if err != nil {
+		common.SysError(fmt.Sprintf("用户通知邮件发送失败: %s", err.Error()))
+		return err
+	}
+
+	common.SysLog(fmt.Sprintf("用户通知邮件发送成功: %s", userEmail))
+	return nil
 }
